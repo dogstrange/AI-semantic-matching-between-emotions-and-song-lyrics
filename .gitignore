@@ -6,3 +6,4 @@ lora_results/
 wandb/
 *.pt
 *.safetensors
+demo/data/

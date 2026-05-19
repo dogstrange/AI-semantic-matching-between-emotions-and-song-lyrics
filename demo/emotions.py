@@ -17,9 +17,9 @@ def rephrase_emotions(emotions: list[str]) -> str:
     return response.json()["response"]
 
 
-# def open_song(song, artist):
-#     search = f"{song} {artist}".replace(" ", "+")
-#     webbrowser.open(f"https://www.youtube.com/results?search_query={search}")
+def open_song(song, artist):
+    search = f"{song} {artist}".replace(" ", "+")
+    webbrowser.open(f"https://www.youtube.com/results?search_query={search}")
 
 
 def play_song(title, artist):
