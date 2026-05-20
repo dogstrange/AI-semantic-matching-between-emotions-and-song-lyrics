@@ -129,13 +129,19 @@ def clap_query(encoded_emo: np.ndarray):
     for sid, scores in song_dict.items():
         scores["combined"] = sum(scores.values()) / len(scores)
 
-    best = max(song_dict, key=lambda sid: song_dict[sid]["combined"])
+    best = min(song_dict, key=lambda sid: song_dict[sid]["combined"])
+    print(song_dict)
+    print(f"distance = {song_dict[best]['combined']}")
 
     return best
 
-
+def clap_open_song(emotion_arr):
+    emo_vec = clap_encode_text(emotion_arr)
+    best_song = clap_query(emo_vec)
+    play_song(best_song,"")
+    
 if __name__ == "__main__":
     # find_and_open_song(["stress", "sad"])
-    emo_vec = clap_encode_text(["stress", "sad"])
+    emo_vec = clap_encode_text(["stress", "sad", "happy"])
     best_song = clap_query(emo_vec)
     play_song(best_song,"")

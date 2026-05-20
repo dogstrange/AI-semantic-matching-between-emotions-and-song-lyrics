@@ -1,5 +1,5 @@
 from cam import run_emotion_session
-from emotions import find_and_open_song
+from emotions import find_and_open_song, clap_open_song
 
 CIRCUMPLEX_WORDS = {
     "happy": "happy",
@@ -10,7 +10,6 @@ CIRCUMPLEX_WORDS = {
     "surprise": "excited",
     "neutral": "calm",
 }
-
 
 def top_emotions(session_results: list[dict], top_n: int = 3) -> list[str]:
     sorted_emotions = sorted(session_results, key=lambda x: x["score"], reverse=True)
@@ -29,4 +28,4 @@ if __name__ == "__main__":
     else:
         emotion_words = top_emotions(session_results, top_n=4)
         print(f"Top emotions: {emotion_words}")
-        find_and_open_song(emotion_words)
+        clap_open_song(emotion_words)
