@@ -1,9 +1,9 @@
 import sys, os
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "tools"))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "model"))
 
-from embed import song_collection, load_sentence_trans
-from tools.clap_encode import model, processor
+from embed import song_collection
+from trans_model import ClapEncoder
 import requests
 import webbrowser
 import subprocess
@@ -46,40 +46,16 @@ def play_song(title, artist):
     )  # ytdl:// means using ytdl protocol's
 
 
-def find_and_open_song(emotion_words: list[str]):
-    emotions_sentence = rephrase_emotions(emotion_words)
-    print(f"input emotions sentence: {emotions_sentence}")
-
-    embed = load_sentence_trans()
-    embed_emotions = embed.encode(emotions_sentence)
-
-    results = song_collection.query(
-        query_embeddings=[embed_emotions.tolist()], n_results=1
-    )
-
-    song_name = results["ids"][0][0]
-    artist = results["metadatas"][0][0]["artist"]
-    distance = results["distances"][0]
-
-    print(f"the distance: {distance}")
-    play_song(song_name, artist)
-    print(f"collection size: {song_collection.count()}")
-
-
 def clap_encode_text(emotion_words: list[str]) -> np.ndarray:
     emotion_sen = rephrase_emotions(emotion_words)
     print(f"emotion sentence: \n {emotion_sen}")
-    model.eval()
+    model = ClapEncoder()
+    model.model.eval()
 
-    text_inputs = processor(
-        text=emotion_sen,
-        return_tensors="pt",
-    ).to(device)
+    text_inputs = model.process_text(emotion_sen)
 
     with torch.no_grad():
-        text_vector = model.text_projection(
-            model.text_model(**text_inputs).pooler_output
-        )
+        text_vector = model.encode_text(text_inputs)
     text_vector = text_vector / text_vector.norm(dim=-1, keepdim=True)
     return text_vector.cpu().numpy()
 

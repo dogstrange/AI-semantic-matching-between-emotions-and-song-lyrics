@@ -13,7 +13,6 @@ song_collection = client.get_or_create_collection(
 )
 
 
-
 embed = SentenceTransformer("all-MiniLM-L12-v2")
 
 

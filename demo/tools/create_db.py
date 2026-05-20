@@ -8,7 +8,7 @@ import chromadb
 from datasets import load_dataset
 
 from clap_encode import encode_clap
-from model.trans_model import ClapEncoder
+from trans_model import ClapEncoder
 
 TOOLS_DIR = os.path.dirname(__file__)  # __file__ holds path of current file
 AUDIO_DIR = os.path.join(

@@ -1,5 +1,5 @@
 from cam import run_emotion_session
-from emotions import find_and_open_song, clap_open_song
+from emotions import clap_open_song
 
 CIRCUMPLEX_WORDS = {
     "happy": "happy",

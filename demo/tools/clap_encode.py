@@ -10,10 +10,11 @@ def encode_clap(
     )  # load audio file return numpy array
 
     # preprocess both modalities
-    text_inputs, audio_inputs = model.process(
-        lyrics, audio
-    )  # like tokenizer for this clap model
-    text_vector, audio_vector = model.encode(text_inputs, audio_inputs)
+    text_inputs = model.process_text(lyrics)
+    audio_inputs = model.process_audio(audio)  # like tokenizer for this clap model
+    
+    text_vector = model.encode_text(text_inputs)
+    audio_vector = model.encode_audio(audio_inputs)
 
     # normalize for cosine similarity
     text_vector = text_vector / text_vector.norm(dim=-1, keepdim=True)
