@@ -14,16 +14,25 @@ model.eval()  # inference mode, disable dropout
 
 
 def encode_clap(lyrics: str, audio_path: str) -> tuple[np.ndarray, np.ndarray]:
-    audio, sr = librosa.load(audio_path, sr=48000, mono=True)
+    audio, sr = librosa.load(
+        audio_path, sr=48000, mono=True
+    )  # load audio file return numpy array
+
     # preprocess both modalities
-    text_inputs = processor(text=lyrics, return_tensors="pt", padding=True, truncation=True, max_length=512).to(device)
+    text_inputs = processor(
+        text=lyrics, return_tensors="pt", padding=True, truncation=True, max_length=512
+    ).to(device)
     audio_inputs = processor(audio=audio, sampling_rate=48000, return_tensors="pt").to(
         device
-    )  # return the audio frequency array
+    )  # somthing like tokenizer
 
     with torch.no_grad():
-        text_vector = model.text_projection(model.text_model(**text_inputs).pooler_output)
-        audio_vector = model.audio_projection(model.audio_model(**audio_inputs).pooler_output)
+        text_vector = model.text_projection(
+            model.text_model(**text_inputs).pooler_output
+        )
+        audio_vector = model.audio_projection(
+            model.audio_model(**audio_inputs).pooler_output
+        )
 
     # normalize for cosine similarity
     text_vector = text_vector / text_vector.norm(dim=-1, keepdim=True)
