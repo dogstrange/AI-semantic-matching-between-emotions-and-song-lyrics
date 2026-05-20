@@ -1,10 +1,14 @@
-import os
+import sys, os
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "model"))
+
 import re
 
 import chromadb
 from datasets import load_dataset
 
 from clap_encode import encode_clap
+from model.trans_model import ClapEncoder
 
 TOOLS_DIR = os.path.dirname(__file__)  # __file__ holds path of current file
 AUDIO_DIR = os.path.join(
@@ -17,6 +21,7 @@ client = chromadb.PersistentClient(path=CLAP_DB_PATH)
 clap_collection = client.get_or_create_collection(
     name="clap-song-collection", metadata={"hnsw:space": "cosine"}
 )
+model = ClapEncoder()
 
 
 def safe_id(title: str, artist: str) -> str:
@@ -41,7 +46,7 @@ def add_song(sample):
     if existing["ids"]:
         return sample
 
-    text_vector, audio_vector = encode_clap(lyrics, audio_path)
+    text_vector, audio_vector = encode_clap(model, lyrics, audio_path)
 
     clap_collection.add(
         ids=[f"{song_id}_audio", f"{song_id}_text"],

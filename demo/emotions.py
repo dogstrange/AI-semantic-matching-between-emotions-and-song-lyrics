@@ -22,7 +22,7 @@ TOOL_DIR = os.path.join(EMO_DIR, "tools")
 
 
 def rephrase_emotions(emotions: list[str]) -> str:
-    prmpt = f"You are describing the emotional journey of a person in short semtence.Given this sorted emotions from high to low in one session {', '.join(emotions)}. I want you to write one short descriptive sentence."
+    prmpt = f"You are describing the emotional journey of a person in short sentence.Given this sorted emotions from high to low in one session {', '.join(emotions)}. I want you to write one short descriptive sentence."
     response = requests.post(
         "http://localhost:11434/api/generate",
         json={
@@ -135,13 +135,15 @@ def clap_query(encoded_emo: np.ndarray):
 
     return best
 
+
 def clap_open_song(emotion_arr):
     emo_vec = clap_encode_text(emotion_arr)
     best_song = clap_query(emo_vec)
-    play_song(best_song,"")
-    
+    play_song(best_song, "")
+
+
 if __name__ == "__main__":
     # find_and_open_song(["stress", "sad"])
     emo_vec = clap_encode_text(["stress", "sad", "happy"])
     best_song = clap_query(emo_vec)
-    play_song(best_song,"")
+    play_song(best_song, "")

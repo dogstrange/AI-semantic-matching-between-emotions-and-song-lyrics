@@ -13,14 +13,12 @@ song_collection = client.get_or_create_collection(
 )
 
 
-def load_sentence_trans():
-    embed = SentenceTransformer("all-MiniLM-L12-v2")
-    return embed
+
+embed = SentenceTransformer("all-MiniLM-L12-v2")
 
 
 def embed_song(sample):
     song_name = sample["song"]
-    embed = load_sentence_trans()
     song_embed = embed.encode(sample["text"])
     song_collection.add(
         ids=[song_name],
