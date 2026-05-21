@@ -1,6 +1,6 @@
 import sys, os
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "model"))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "model"))
 
 from embed import song_collection
 from trans_model import ClapEncoder
@@ -12,7 +12,7 @@ import numpy as np
 import chromadb
 
 clap_collection = chromadb.PersistentClient(
-    path=os.path.join(os.path.dirname(__file__), "data", "clap_db")
+    path=os.path.join(os.path.dirname(__file__), "..", "data", "clap_db")
 ).get_collection("clap-song-collection")
 
 device = "cuda" if torch.cuda.is_available() else "cpu"

@@ -1,5 +1,6 @@
 import torch
-from transformers import ClapModel, ClapProcessor
+from transformers import ClapModel, ClapProcessor, pipeline
+from facenet_pytorch import MTCNN
 
 
 class ClapEncoder:
@@ -43,3 +44,12 @@ class ClapEncoder:
                 self.model.audio_model(**audio_inp).pooler_output
             )
         return audio_vector
+
+
+class Facial:
+    def __init__(self):
+        self.emotion_classifier = pipeline(
+            "image-classification",
+            model="dima806/facial_emotions_image_detection",
+        )
+        self.face_detector = MTCNN(keep_all=True, device="cpu", post_process=False)

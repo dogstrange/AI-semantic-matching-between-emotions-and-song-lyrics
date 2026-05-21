@@ -7,3 +7,4 @@ wandb/
 *.pt
 *.safetensors
 demo/data/
+demo/.claude

@@ -6,7 +6,7 @@ from sentence_transformers import SentenceTransformer
 from datasets import load_dataset
 import chromadb
 
-client = chromadb.PersistentClient(path="./chroma_db")
+client = chromadb.PersistentClient(path=os.path.join(os.path.dirname(__file__), "..", "chroma_db"))
 
 song_collection = client.get_or_create_collection(
     name="songs", metadata={"hnsw:space": "cosine"}
