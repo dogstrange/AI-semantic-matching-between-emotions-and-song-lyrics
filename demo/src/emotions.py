@@ -2,7 +2,6 @@ import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "model"))
 
-from embed import song_collection
 from trans_model import ClapEncoder
 import requests
 import webbrowser
@@ -46,10 +45,10 @@ def play_song(title, artist):
     )  # ytdl:// means using ytdl protocol's
 
 
-def clap_encode_text(emotion_words: list[str]) -> np.ndarray:
+def clap_encode_text(model: object, emotion_words: list[str]) -> np.ndarray:
     emotion_sen = rephrase_emotions(emotion_words)
     print(f"emotion sentence: \n {emotion_sen}")
-    model = ClapEncoder()
+
     model.model.eval()
 
     text_inputs = model.process_text(emotion_sen)
@@ -112,10 +111,11 @@ def clap_query(encoded_emo: np.ndarray):
     return best
 
 
-def clap_open_song(emotion_arr):
-    emo_vec = clap_encode_text(emotion_arr)
+def clap_open_song(model: object, emotion_arr):
+    emo_vec = clap_encode_text(model, emotion_arr)
     best_song = clap_query(emo_vec)
-    play_song(best_song, "")
+    return best_song
+
 
 CIRCUMPLEX_WORDS = {
     "happy": "happy",
@@ -126,6 +126,7 @@ CIRCUMPLEX_WORDS = {
     "surprise": "excited",
     "neutral": "calm",
 }
+
 
 def top_emotions(session_results: list[dict], top_n: int = 3) -> list[str]:
     sorted_emotions = sorted(session_results, key=lambda x: x["score"], reverse=True)

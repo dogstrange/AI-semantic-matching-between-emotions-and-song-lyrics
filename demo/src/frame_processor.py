@@ -1,11 +1,22 @@
 import numpy as np
 from PIL import Image
+import io
+import base64
 
 EMOTION_LABELS = {"happy", "sad", "angry", "fear", "disgust", "surprise", "neutral"}
 
 
+def decode_frame(base64_string):
+    # strip the prefix if present
+    if "," in base64_string:
+        base64_string = base64_string.split(",")[1]
 
-def analyze_frames(model: object,frames: list[np.ndarray]) -> list[dict]:
+    image_bytes = base64.b64decode(base64_string)
+    image = Image.open(io.BytesIO(image_bytes))
+    return image
+
+
+def analyze_frames(model: object, frames: list[str]) -> list[dict]:
     """
     Accept a batch of RGB numpy frames collected from the web app after a session.
     Returns accumulated emotion scores averaged across all frames that had a detected face,
@@ -15,8 +26,13 @@ def analyze_frames(model: object,frames: list[np.ndarray]) -> list[dict]:
     frames_analyzed = 0
 
     for frame in frames:
-        pil_frame = Image.fromarray(frame.astype(np.uint8))
-        boxes, _ = model.face_detector.detect(pil_frame)
+        pil_frame = decode_frame(frame)
+        rgb = np.array(pil_frame.convert("RGB"))
+
+        try:
+            boxes, _ = model.face_detector.detect(pil_frame)
+        except Exception:
+            continue
 
         if boxes is None:
             continue
@@ -25,12 +41,14 @@ def analyze_frames(model: object,frames: list[np.ndarray]) -> list[dict]:
             x1, y1, x2, y2 = [int(v) for v in box]
             x1, y1 = max(0, x1), max(0, y1)
 
-            face_crop = frame[y1:y2, x1:x2]
+            face_crop = rgb[y1:y2, x1:x2]
             if face_crop.size == 0:
                 continue
 
             try:
-                results = model.emotion_classifier(Image.fromarray(face_crop.astype(np.uint8)))
+                results = model.emotion_classifier(
+                    Image.fromarray(face_crop.astype(np.uint8))
+                )
                 for r in results:
                     emo = r["label"].lower()
                     if emo in score_accumulators:
