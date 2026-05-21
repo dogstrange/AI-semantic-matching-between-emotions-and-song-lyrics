@@ -1,23 +1,5 @@
 from cam import run_emotion_session
-from emotions import clap_open_song
-
-CIRCUMPLEX_WORDS = {
-    "happy": "happy",
-    "sad": "sad",
-    "angry": "stressed",
-    "fear": "nervous",
-    "disgust": "upset",
-    "surprise": "excited",
-    "neutral": "calm",
-}
-
-def top_emotions(session_results: list[dict], top_n: int = 3) -> list[str]:
-    sorted_emotions = sorted(session_results, key=lambda x: x["score"], reverse=True)
-    return [
-        CIRCUMPLEX_WORDS[e["emotion"]]
-        for e in sorted_emotions[:top_n]
-        if e["emotion"] in CIRCUMPLEX_WORDS
-    ]  # List comprehension
+from emotions import clap_open_song, top_emotions
 
 
 if __name__ == "__main__":

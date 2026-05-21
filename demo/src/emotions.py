@@ -117,6 +117,24 @@ def clap_open_song(emotion_arr):
     best_song = clap_query(emo_vec)
     play_song(best_song, "")
 
+CIRCUMPLEX_WORDS = {
+    "happy": "happy",
+    "sad": "sad",
+    "angry": "stressed",
+    "fear": "nervous",
+    "disgust": "upset",
+    "surprise": "excited",
+    "neutral": "calm",
+}
+
+def top_emotions(session_results: list[dict], top_n: int = 3) -> list[str]:
+    sorted_emotions = sorted(session_results, key=lambda x: x["score"], reverse=True)
+    return [
+        CIRCUMPLEX_WORDS[e["emotion"]]
+        for e in sorted_emotions[:top_n]
+        if e["emotion"] in CIRCUMPLEX_WORDS
+    ]  # List comprehension
+
 
 if __name__ == "__main__":
     # find_and_open_song(["stress", "sad"])
