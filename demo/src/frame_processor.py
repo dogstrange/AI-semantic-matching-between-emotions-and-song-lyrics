@@ -5,6 +5,44 @@ import base64
 
 EMOTION_LABELS = {"happy", "sad", "angry", "fear", "disgust", "surprise", "neutral"}
 
+# Weighted blends of the 7 base emotions into a richer vocabulary.
+# Per frame: complex_score = sum(weight * prob[base]) for each base in the blend.
+COMPLEX_EMOTIONS = {
+    "joyful":      {"happy": 1.0},
+    "excited":     {"happy": 0.6, "surprise": 0.4},
+    "euphoric":    {"happy": 0.7, "surprise": 0.3},
+    "content":     {"happy": 0.5, "neutral": 0.5},
+    "hopeful":     {"happy": 0.6, "neutral": 0.2, "surprise": 0.2},
+    "serene":      {"neutral": 0.6, "happy": 0.4},
+    "peaceful":    {"neutral": 1.0},
+    "calm":        {"neutral": 0.7, "happy": 0.3},
+    "dreamy":      {"neutral": 0.4, "happy": 0.3, "surprise": 0.3},
+    "bittersweet": {"happy": 0.5, "sad": 0.5},
+    "nostalgic":   {"sad": 0.4, "happy": 0.4, "neutral": 0.2},
+    "wistful":     {"sad": 0.5, "happy": 0.3, "neutral": 0.2},
+    "melancholic": {"sad": 0.7, "neutral": 0.3},
+    "lonely":      {"sad": 0.5, "neutral": 0.5},
+    "gloomy":      {"sad": 0.6, "disgust": 0.2, "neutral": 0.2},
+    "heartbroken": {"sad": 0.8, "fear": 0.2},
+    "vulnerable":  {"fear": 0.5, "sad": 0.5},
+    "anxious":     {"fear": 0.7, "surprise": 0.3},
+    "tense":       {"fear": 0.5, "angry": 0.5},
+    "restless":    {"surprise": 0.4, "fear": 0.3, "angry": 0.3},
+    "frustrated":  {"angry": 0.6, "disgust": 0.4},
+    "irritated":   {"angry": 0.5, "disgust": 0.5},
+    "bitter":      {"disgust": 0.5, "angry": 0.3, "sad": 0.2},
+    "contempt":    {"disgust": 0.6, "angry": 0.4},
+    "awestruck":   {"surprise": 0.7, "happy": 0.3},
+}
+
+
+def map_to_complex(base_probs: dict) -> dict:
+    """Map a 7-emotion probability dict to a complex-emotion score dict."""
+    return {
+        name: sum(w * base_probs.get(base, 0.0) for base, w in blend.items())
+        for name, blend in COMPLEX_EMOTIONS.items()
+    }
+
 
 def decode_frame(base64_string):
     # strip the prefix if present
@@ -22,7 +60,7 @@ def analyze_frames(model: object, frames: list[str]) -> list[dict]:
     Returns accumulated emotion scores averaged across all frames that had a detected face,
     in the same format as cam.py: [{"emotion": str, "score": float}, ...]
     """
-    score_accumulators = {k: 0.0 for k in EMOTION_LABELS}
+    score_accumulators = {k: 0.0 for k in COMPLEX_EMOTIONS}
     frames_analyzed = 0
 
     for frame in frames:
@@ -49,10 +87,14 @@ def analyze_frames(model: object, frames: list[str]) -> list[dict]:
                 results = model.emotion_classifier(
                     Image.fromarray(face_crop.astype(np.uint8))
                 )
-                for r in results:
-                    emo = r["label"].lower()
-                    if emo in score_accumulators:
-                        score_accumulators[emo] += r["score"] * 100
+                base_probs = {
+                    r["label"].lower(): r["score"]
+                    for r in results
+                    if r["label"].lower() in EMOTION_LABELS
+                }
+                complex_scores = map_to_complex(base_probs)
+                for name, score in complex_scores.items():
+                    score_accumulators[name] += score * 100
                 frames_analyzed += 1
             except Exception:
                 pass

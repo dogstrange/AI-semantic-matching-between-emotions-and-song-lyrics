@@ -105,7 +105,7 @@ def clap_query(encoded_emo: np.ndarray):
         scores["combined"] = sum(scores.values()) / len(scores)
 
     best = min(song_dict, key=lambda sid: song_dict[sid]["combined"])
-    print(song_dict)
+
     print(f"distance = {song_dict[best]['combined']}")
 
     return best
@@ -128,13 +128,9 @@ CIRCUMPLEX_WORDS = {
 }
 
 
-def top_emotions(session_results: list[dict], top_n: int = 3) -> list[str]:
+def top_emotions(session_results: list[dict], top_n: int = 6) -> list[str]:
     sorted_emotions = sorted(session_results, key=lambda x: x["score"], reverse=True)
-    return [
-        CIRCUMPLEX_WORDS[e["emotion"]]
-        for e in sorted_emotions[:top_n]
-        if e["emotion"] in CIRCUMPLEX_WORDS
-    ]  # List comprehension
+    return [e["emotion"] for e in sorted_emotions[:top_n]]
 
 
 if __name__ == "__main__":

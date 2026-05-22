@@ -1,0 +1,394 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f3f3f1;
+  --surface: #ffffff;
+  --surface-alt: #ebebe8;
+  --border: #dcdcd8;
+  --text: #1a1a1a;
+  --text-muted: #6b6b68;
+  --text-faint: #a5a5a1;
+  --accent: #1a1a1a;
+  --accent-soft: rgba(26,26,26,.08);
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  height: 100vh;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Views ── */
+.view { display: none; height: 100vh; }
+.view.active { display: flex; align-items: center; justify-content: center; }
+
+/* ── Setup ── */
+.setup-card {
+  text-align: center;
+  max-width: 380px;
+  width: 90%;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: 500;
+  letter-spacing: -.02em;
+  margin-bottom: .5rem;
+  color: var(--text);
+}
+
+.subtitle {
+  color: var(--text-muted);
+  font-size: .9rem;
+  line-height: 1.55;
+  margin-bottom: 2.5rem;
+  font-weight: 400;
+}
+
+.duration-input-wrapper {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: .6rem;
+  margin-bottom: 2rem;
+}
+
+.duration-input {
+  width: 110px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  padding: .5rem .25rem;
+  font-size: 1.6rem;
+  font-weight: 400;
+  text-align: center;
+  outline: none;
+  transition: border-color .2s;
+  font-family: inherit;
+}
+
+.duration-input:focus { border-bottom-color: var(--text); }
+
+.duration-unit {
+  font-size: .85rem;
+  color: var(--text-muted);
+  letter-spacing: .02em;
+}
+
+.primary-btn {
+  width: 100%;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: .9rem;
+  font-size: .9rem;
+  font-weight: 500;
+  letter-spacing: .01em;
+  cursor: pointer;
+  transition: opacity .2s, transform .1s;
+}
+.primary-btn:hover { opacity: .88; }
+.primary-btn:active { transform: scale(.99); }
+
+/* ── Session ── */
+.session-layout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.5rem;
+}
+
+.cam-wrapper {
+  position: relative;
+  width: 340px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+#webcam { width: 100%; display: block; }
+
+.cam-label {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,.45));
+  padding: .75rem 1rem;
+  font-size: .78rem;
+  color: #fff;
+  letter-spacing: .02em;
+}
+
+.session-info { text-align: center; }
+
+.timer {
+  font-size: 3rem;
+  font-weight: 300;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.02em;
+  color: var(--text);
+}
+
+.frame-count {
+  color: var(--text-faint);
+  font-size: .8rem;
+  margin: .5rem 0 1.5rem;
+  letter-spacing: .02em;
+}
+
+.secondary-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 8px;
+  padding: .6rem 1.6rem;
+  font-size: .85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .2s;
+}
+.secondary-btn:hover { border-color: var(--text); color: var(--text); }
+
+/* ── Loading ── */
+.loading-card { text-align: center; }
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 2px solid var(--border);
+  border-top-color: var(--text);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+  margin: 0 auto 1.5rem;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loading-card p {
+  font-size: .95rem;
+  color: var(--text);
+  font-weight: 400;
+}
+.loading-sub {
+  font-size: .8rem;
+  color: var(--text-faint) !important;
+  margin-top: .4rem;
+}
+
+/* ── Result ── */
+.player-layout {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  background: var(--bg);
+}
+
+.player-left {
+  width: 400px;
+  min-width: 340px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 2.5rem 2.25rem;
+  overflow: hidden;
+  background: var(--bg);
+  border-right: 1px solid var(--border);
+}
+
+.album-bg { display: none; }
+
+.player-left > *:not(.album-bg) { position: relative; z-index: 1; }
+
+.album-cover {
+  width: 220px;
+  height: 220px;
+  border-radius: 10px;
+  object-fit: cover;
+  box-shadow: 0 8px 24px rgba(0,0,0,.08);
+  background: var(--surface-alt);
+  margin-bottom: 1.75rem;
+}
+
+.song-meta { text-align: center; margin-bottom: 1.75rem; }
+
+.song-title {
+  font-size: 1.15rem;
+  font-weight: 500;
+  margin-bottom: .3rem;
+  color: var(--text);
+  letter-spacing: -.01em;
+}
+
+.song-artist {
+  font-size: .85rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.player-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  max-width: 280px;
+  margin-bottom: 1.25rem;
+}
+
+.play-btn {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  font-size: .9rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform .15s, opacity .2s;
+}
+.play-btn:hover { opacity: .85; }
+.play-btn:active { transform: scale(.95); }
+
+.progress-wrapper { flex: 1; }
+
+.progress-bar {
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  cursor: pointer;
+  overflow: hidden;
+  margin-bottom: .45rem;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--text);
+  border-radius: 2px;
+  transition: width .1s linear;
+}
+
+.time-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: .7rem;
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.youtube-btn,
+.restart-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: .55rem 1.25rem;
+  font-size: .8rem;
+  font-weight: 500;
+  cursor: pointer;
+  margin-bottom: .5rem;
+  transition: all .2s;
+  letter-spacing: .01em;
+}
+.youtube-btn:hover,
+.restart-btn:hover {
+  background: var(--accent-soft);
+  border-color: var(--text);
+  color: var(--text);
+}
+
+/* ── Lyrics panel ── */
+.player-right {
+  flex: 1;
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  padding: 3rem 2.75rem;
+  overflow: hidden;
+}
+
+.lyrics-header {
+  font-size: .68rem;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 1.25rem;
+}
+
+.lyrics {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+  padding: 0 .25rem;
+}
+
+.lyrics::-webkit-scrollbar { width: 4px; }
+.lyrics::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.lyric-line {
+  font-size: 1.5rem;
+  font-weight: 500;
+  line-height: 1.55;
+  color: var(--text-faint);
+  padding: .4rem 0;
+  transition: color .35s, transform .35s;
+  transform-origin: left center;
+  letter-spacing: -.01em;
+}
+
+.lyric-line.passed { color: #cdcdc8; }
+
+.lyric-line.active {
+  color: var(--text);
+  transform: scale(1.02);
+}
+
+.lyrics.not-found {
+  font-size: .9rem;
+  font-weight: 400;
+  color: var(--text-faint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Emotion chips ── */
+.lyrics-top { margin-bottom: 2rem; }
+.lyrics-section-header { margin-top: 0; }
+
+.emotion-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+}
+
+.emotion-chip {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: .3rem .8rem;
+  font-size: .75rem;
+  font-weight: 500;
+  text-transform: capitalize;
+  letter-spacing: .01em;
+}
+
+.emotion-chip.primary {
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--bg);
+  font-weight: 500;
+}

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mood Music</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- SESSION SETUP VIEW -->
+  <div id="view-setup" class="view active">
+    <div class="setup-card">
+      <h1 class="logo">🎵 Mood Music</h1>
+      <p class="subtitle">We'll read your emotions during your session and find the perfect song.</p>
+
+      <div class="duration-input-wrapper">
+        <input id="duration-input" class="duration-input" type="number" min="1" max="180" value="30" />
+        <span class="duration-unit">minutes</span>
+      </div>
+
+      <button id="start-btn" class="primary-btn">Start Session</button>
+    </div>
+  </div>
+
+  <!-- SESSION RUNNING VIEW -->
+  <div id="view-session" class="view">
+    <div class="session-layout">
+      <div class="cam-wrapper">
+        <video id="webcam" autoplay muted playsinline></video>
+        <div class="cam-label">Reading your mood...</div>
+      </div>
+      <div class="session-info">
+        <div id="timer" class="timer">00:00</div>
+        <p id="frame-count" class="frame-count">0 frames captured</p>
+        <button id="stop-btn" class="secondary-btn">End Early</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOADING VIEW -->
+  <div id="view-loading" class="view">
+    <div class="loading-card">
+      <div class="spinner"></div>
+      <p>Analyzing your mood...</p>
+      <p class="loading-sub">Finding your perfect song</p>
+    </div>
+  </div>
+
+  <!-- RESULT VIEW (Apple Music style) -->
+  <div id="view-result" class="view">
+    <div class="player-layout">
+      <div class="player-left">
+        <div id="album-bg" class="album-bg"></div>
+        <img id="album-cover" class="album-cover" src="" alt="Album Cover" />
+        <div class="song-meta">
+          <div id="song-title" class="song-title">—</div>
+          <div id="song-artist" class="song-artist">—</div>
+        </div>
+        <audio id="audio-player" preload="auto"></audio>
+        <div class="player-controls">
+          <button id="play-btn" class="play-btn" onclick="togglePlay()">▶</button>
+          <div class="progress-wrapper">
+            <div id="progress-bar" class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+            <div class="time-row">
+              <span id="time-current">0:00</span>
+              <span id="time-total">0:00</span>
+            </div>
+          </div>
+        </div>
+        <button id="youtube-btn" class="youtube-btn" onclick="openOnYouTube()">Open on YouTube</button>
+        <button id="restart-btn" class="restart-btn" onclick="restart()">New Session</button>
+      </div>
+      <div class="player-right">
+        <div class="lyrics-top">
+          <div class="lyrics-header">Detected Mood</div>
+          <div id="emotion-chips" class="emotion-chips"></div>
+        </div>
+        <div class="lyrics-header lyrics-section-header">Lyrics</div>
+        <div id="lyrics" class="lyrics">Loading lyrics...</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

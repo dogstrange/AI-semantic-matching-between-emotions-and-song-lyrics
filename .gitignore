@@ -8,3 +8,4 @@ wandb/
 *.safetensors
 demo/data/
 demo/.claude
+pyrightconfig.json
