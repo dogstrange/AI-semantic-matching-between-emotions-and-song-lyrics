@@ -23,7 +23,7 @@ TOOL_DIR = os.path.join(EMO_DIR, "tools")
 def rephrase_emotions(emotions: list[str]) -> str:
     prmpt = f"You are describing the emotional journey of a person in short sentence.Given this sorted emotions from high to low in one session {', '.join(emotions)}. I want you to write one short descriptive sentence."
     response = requests.post(
-        "http://localhost:11434/api/generate",
+        "http://ollama:11434/api/generate",
         json={
             "model": "mistral",
             "prompt": prmpt,
