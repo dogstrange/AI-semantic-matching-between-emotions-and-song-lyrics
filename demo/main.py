@@ -4,6 +4,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "api"))
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+
 from interface.interface import FacialAnalyst
 from contextlib import asynccontextmanager
 from model.trans_model import ClapEncoder, Facial
@@ -37,11 +39,6 @@ app.add_middleware(
 )
 
 
-@app.get("/")
-def test():
-    return {"message": "hellos"}
-
-
 @app.post("/face")
 def analyze(
     req: Request, payload: FacialAnalyst
@@ -56,3 +53,8 @@ def analyze(
 
     out = {"top_emotions": emotion_words, "song": song}
     return out
+
+
+app.mount(
+    "/", StaticFiles(directory="frontend", html=True), name="frontend"
+)  # StaticFiles serves every files that index.html reference from and sent additional get request
