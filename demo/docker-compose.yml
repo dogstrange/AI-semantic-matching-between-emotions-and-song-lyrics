@@ -1,14 +1,14 @@
 services:
   app:
-    build: .
+    build: . # look at dockerfile in the current directory
     ports:
-      - "8000:8000"
+      - "8000:8000" # map local port 8000 to container port 8000
     depends_on:
-      - ollama
+      - ollama # start this container first then app container
 
   ollama:
-    image: ollama/ollama
+    image: ollama/ollama # ollama image from docker hub
     ports:
       - "11434:11434"
     volumes:
-      - ~/.ollama:/root/.ollama
+      - ollama_data:/root/.ollama

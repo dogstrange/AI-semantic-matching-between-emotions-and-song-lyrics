@@ -9,3 +9,4 @@ wandb/
 demo/data/
 demo/.claude
 pyrightconfig.json
+demo/diagram/

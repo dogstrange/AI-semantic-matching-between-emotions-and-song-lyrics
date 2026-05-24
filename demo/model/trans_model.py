@@ -6,10 +6,11 @@ from facenet_pytorch import MTCNN
 class ClapEncoder:
     def __init__(self):
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        self.model = ClapModel.from_pretrained("laion/clap-htsat-unfused").to(
+        self.model = ClapModel.from_pretrained("laion/larger_clap_music").to(
             self.device
         )
-        self.processor = ClapProcessor.from_pretrained("laion/clap-htsat-unfused")
+        self.processor = ClapProcessor.from_pretrained("laion/larger_clap_music")
+
 
     def process_text(self, lyrics):
         text_inputs = self.processor(
@@ -34,7 +35,7 @@ class ClapEncoder:
         with torch.no_grad():
             text_vector = self.model.text_projection(
                 self.model.text_model(**text_inp).pooler_output
-            )
+            ) # projection keyword make text and audio in the same space
 
         return text_vector
 
