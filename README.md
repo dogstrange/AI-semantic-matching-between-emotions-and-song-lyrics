@@ -1,40 +1,59 @@
 # Emotion-Driven Music Recommender
 
-A real-time system that analyzes your facial emotions via webcam and recommends a song that matches how you feel — then plays it directly from YouTube.
+A web application that reads your facial emotions through the webcam and recommends a song that matches how you feel — served as a FastAPI backend with a browser-based player UI, packaged with Docker.
 
 ---
 
 ## Concept
 
-The core idea is to bridge the gap between **how you feel** and **what you listen to**. Instead of manually searching for music, the system reads your face over a short session, understands your emotional state, and finds a song whose lyrics semantically match that state.
-
-The pipeline has three stages:
+The system bridges the gap between **how you feel** and **what you listen to**. Instead of picking music manually, the browser captures a short webcam session, the backend reads the emotional state from those frames, and a CLAP-based vector search returns the song whose lyrics *and* audio best match that emotion.
 
 ```
-Webcam → Emotion Recognition → Semantic Song Search → Playback
+Browser (webcam frames) → FastAPI → Emotion Detection → LLM Rephrase
+                                       ↓
+                       CLAP text embedding → ChromaDB query → Best song
 ```
 
-1. **Capture** — Record your face for a fixed duration via webcam.
-2. **Analyze** — Detect faces and classify emotions frame-by-frame; accumulate scores across the session.
-3. **Rephrase** — Use a local LLM to turn the top emotions into a natural language description of your emotional journey.
-4. **Search** — Encode that description into a vector and query a ChromaDB database of pre-embedded song lyrics to find the closest match.
-5. **Play** — Stream the matched song from YouTube using `mpv` + `yt-dlp`.
-
-Emotions are mapped to the **Circumplex Model of Affect** (e.g. `angry → stressed`, `surprise → excited`, `neutral → calm`) before being passed downstream, giving the language model richer vocabulary to work with.
+1. **Capture** — The frontend grabs frames from the user's webcam over a session and POSTs them as base64 to `/face`.
+2. **Detect** — MTCNN finds faces in each frame; a HuggingFace emotion classifier scores them.
+3. **Aggregate** — Per-frame scores are accumulated; the top emotions of the session are selected.
+4. **Rephrase** — A local Mistral model (via Ollama) turns those emotion labels into a descriptive sentence.
+5. **Embed & Search** — CLAP (`laion/larger_clap_music`) encodes the sentence into a 512-dim vector and queries a ChromaDB collection where every song is stored under two modalities — a text (lyrics) embedding and an audio embedding. Scores from both are averaged to pick the best match.
+6. **Play** — The frontend renders an Apple-Music-style player with album art, lyrics, and a YouTube link for the matched song.
 
 ---
 
 ## Project Structure
 
-| File | Role |
-|---|---|
-| `run.py` | Entry point — orchestrates the full pipeline |
-| `cam.py` | Webcam capture, face detection, per-frame emotion classification |
-| `emotions.py` | LLM rephrasing + ChromaDB semantic search + playback |
-| `embed.py` | One-time script to embed the Spotify Million Song dataset into ChromaDB |
-| `song.py` | Helper to fetch lyrics via the Genius API for a personal song collection |
-| `finetune_emo.py` | Fine-tuning script to adapt the sentence encoder on emotion-lyric pairs |
-| `chroma_db/` | Persistent vector store (ChromaDB) holding song embeddings |
+```
+ntust_project/
+├── README.md                ← you are here
+├── demo/                    ← the deployed application
+│   ├── main.py              ← FastAPI app (lifespan loads CLAP + Facial; serves /face and frontend)
+│   ├── Dockerfile
+│   ├── docker-compose.yml   ← app + ollama services
+│   ├── requirements.txt
+│   ├── api/
+│   │   └── interface/interface.py   ← Pydantic `FacialAnalyst` request model
+│   ├── src/
+│   │   ├── frame_processor.py       ← decode base64 frames, run face + emotion detection
+│   │   ├── emotions.py              ← LLM rephrase, CLAP encode, ChromaDB query
+│   │   ├── cam.py                   ← (legacy CLI webcam loop)
+│   │   ├── embed.py                 ← (legacy sentence-transformer pipeline)
+│   │   └── run.py                   ← (legacy CLI entry point)
+│   ├── model/
+│   │   └── trans_model.py           ← `ClapEncoder` and `Facial` model wrappers
+│   ├── frontend/
+│   │   ├── index.html               ← setup / session / loading / player views
+│   │   ├── app.js
+│   │   └── styles.css
+│   ├── tools/
+│   │   ├── scrape.py                ← download song audio via yt-dlp
+│   │   ├── clap_encode.py           ← encode (lyrics, audio) pairs
+│   │   └── create_db.py             ← build the `clap-song-collection` ChromaDB
+│   └── data/                        ← (gitignored) audio/, metadata/, clap_db/
+└── learn/                           ← experiments and notebooks
+```
 
 ---
 
@@ -43,111 +62,154 @@ Emotions are mapped to the **Circumplex Model of Affect** (e.g. `angry → stres
 ### Computer Vision
 | Tool | Purpose |
 |---|---|
-| **OpenCV** (`cv2`) | Webcam capture and on-screen drawing |
-| **facenet-pytorch** (MTCNN) | Fast multi-face detection in each frame |
+| **facenet-pytorch** (MTCNN) | Multi-face detection on each submitted frame |
+| **OpenCV** / **Pillow** | Frame decoding and conversion for model input |
 
 ### Emotion Recognition
 | Tool | Purpose |
 |---|---|
-| **Hugging Face Transformers** | Emotion classification using [`dima806/facial_emotions_image_detection`](https://huggingface.co/dima806/facial_emotions_image_detection) |
-| **Pillow** | Frame conversion for model input |
+| **Hugging Face Transformers** | Emotion classification via [`dima806/facial_emotions_image_detection`](https://huggingface.co/dima806/facial_emotions_image_detection) |
 
 ### Language & Embeddings
 | Tool | Purpose |
 |---|---|
-| **Ollama + Mistral** | Local LLM that rephrases raw emotion labels into a descriptive sentence |
-| **sentence-transformers** (`all-MiniLM-L12-v2`) | Encodes emotion sentences and song lyrics into comparable vectors |
+| **Ollama + Mistral** | Local LLM that rephrases the top emotion labels into one descriptive sentence |
+| **CLAP** (`laion/larger_clap_music`) | Dual text/audio encoder — projects emotion sentences and song lyrics/audio into a shared 512-dim space |
 
 ### Vector Search
 | Tool | Purpose |
 |---|---|
-| **ChromaDB** | Persistent vector database storing pre-embedded song lyrics; queried with cosine similarity |
+| **ChromaDB** | Persistent store of `clap-song-collection`; every song has both a `_text` and `_audio` entry. The query averages the two distances to pick the best match. |
 
-### Dataset & Lyrics
+### Backend & Frontend
 | Tool | Purpose |
 |---|---|
-| **Hugging Face Datasets** | Loads the [Spotify Million Song Dataset](https://huggingface.co/datasets/vishnupriyavr/spotify-million-song-dataset) for bulk embedding |
-| **lyricsgenius** | Fetches song lyrics via the Genius API for a personal collection |
+| **FastAPI** + **Uvicorn** | `/face` endpoint receives the frame batch; static frontend served at `/` |
+| **Pydantic** | `FacialAnalyst` request schema |
+| Vanilla **HTML / CSS / JS** | Webcam capture, session timer, player UI |
 
-### Playback
+### Data Pipeline (one-time)
 | Tool | Purpose |
 |---|---|
-| **mpv** | Media player used to stream the matched song |
-| **yt-dlp** | YouTube backend (`ytdl://ytsearch1:`) used by mpv to resolve and stream audio |
-
-### Fine-tuning
-| Tool | Purpose |
-|---|---|
-| **PyTorch** | Training backend for the sentence encoder fine-tuning |
-| **sentence-transformers** `CosineSimilarityLoss` | Trains the encoder to bring emotion descriptions closer to matching lyrics in vector space |
+| **yt-dlp** | Downloads song audio for the collection (`tools/scrape.py`) |
+| **librosa** | Loads audio at 48 kHz for CLAP audio encoding |
+| **Hugging Face Datasets** | Source of song lyrics (Spotify Million Song Dataset) |
 
 ---
 
 ## How to Run
 
-### Prerequisites
-
-- Python 3.11+
-- [Ollama](https://ollama.com/) running locally with the Mistral model pulled (`ollama pull mistral`)
-- `mpv` installed with `yt-dlp` support
-- A `.env` file with your Genius API key (only needed for `song.py`):
-  ```
-  GENIUS_API_KEY=your_key_here
-  ```
-
-### 1. Embed the song dataset (one-time setup)
+### With Docker (recommended)
 
 ```bash
-python embed.py
+cd demo
+docker compose up --build
 ```
 
-This downloads ~20,000 songs from the Spotify Million Song Dataset, encodes their lyrics, and stores them in `chroma_db/`.
+This starts two services:
 
-### 2. Run the main application
+- `app` — FastAPI on `http://localhost:8000` (serves both the API and the frontend)
+- `ollama` — Ollama on `http://localhost:11434`
+
+Pull the Mistral model into the ollama container the first time:
 
 ```bash
-python run.py
+docker compose exec ollama ollama pull mistral
 ```
 
-The webcam will open and analyze your face for **10 seconds**. After the session ends, it will find and play the best matching song.
+Then open `http://localhost:8000` in a browser, allow camera access, start a session, and wait for the recommended song.
+
+### Locally without Docker
+
+```bash
+cd demo
+pip install -r requirements.txt
+
+# Ollama must be reachable; emotions.py POSTs to http://ollama:11434
+# (rename to http://localhost:11434 for non-Docker runs)
+ollama pull mistral && ollama serve
+
+uvicorn main:app --host 0.0.0.0 --port 8000
+```
+
+The ChromaDB at `demo/data/clap_db/` is required — it ships with the project and contains the pre-encoded song collection.
+
+---
+
+## Rebuilding the Song Collection
+
+If you want to swap in your own songs:
+
+```bash
+cd demo
+python tools/scrape.py       # download audio via yt-dlp into data/audio/
+python tools/clap_encode.py  # encode (lyrics, audio) pairs with CLAP
+python tools/create_db.py    # write embeddings into data/clap_db/
+```
+
+Each song lands in ChromaDB twice — once with id `<song>_text` and once with `<song>_audio` — so the query at runtime can compare both modalities and average their distances.
+
+---
+
+## API
+
+### `POST /face`
+
+Request body:
+
+```json
+{
+  "frames": ["data:image/jpeg;base64,...", "..."],
+  "duration": 30
+}
+```
+
+Response:
+
+```json
+{
+  "top_emotions": ["happy", "calm", "excited", "neutral"],
+  "song": "john_lennon_imagine"
+}
+```
+
+The frontend uses the returned `song` id to look up metadata, album art, lyrics, and a YouTube URL for playback.
 
 ---
 
 ## Architecture Diagram
 
 ```
-┌─────────────┐     face crops      ┌──────────────────────┐
-│  Webcam     │ ─────────────────▶  │  Emotion Classifier  │
-│  (OpenCV)   │                     │  (Hugging Face)       │
-└─────────────┘                     └──────────┬───────────┘
-                                               │ emotion scores
-                                               ▼
-                                    ┌──────────────────────┐
-                                    │  Circumplex Mapping  │
-                                    │  + Top-N Selection   │
-                                    └──────────┬───────────┘
-                                               │ top emotions
-                                               ▼
-                                    ┌──────────────────────┐
-                                    │  Ollama / Mistral    │
-                                    │  (local LLM)         │
-                                    └──────────┬───────────┘
-                                               │ emotion sentence
-                                               ▼
-                                    ┌──────────────────────┐
-                                    │  SentenceTransformer │
-                                    │  (all-MiniLM-L12-v2) │
-                                    └──────────┬───────────┘
-                                               │ embedding vector
-                                               ▼
-                                    ┌──────────────────────┐
-                                    │  ChromaDB            │
-                                    │  (cosine similarity) │
-                                    └──────────┬───────────┘
-                                               │ matched song
-                                               ▼
-                                    ┌──────────────────────┐
-                                    │  mpv + yt-dlp        │
-                                    │  (YouTube stream)    │
-                                    └──────────────────────┘
+┌──────────────┐  base64 frames   ┌─────────────────────┐
+│  Browser     │ ───────────────▶ │  FastAPI  /face     │
+│  (webcam +   │                  │  (main.py)          │
+│   player UI) │ ◀─────────────── │                     │
+└──────────────┘   {emotions,     └──────────┬──────────┘
+                    song}                    │
+                                             ▼
+                                  ┌─────────────────────┐
+                                  │  MTCNN + Emotion    │
+                                  │  Classifier         │
+                                  └──────────┬──────────┘
+                                             │ top emotions
+                                             ▼
+                                  ┌─────────────────────┐
+                                  │  Ollama / Mistral   │
+                                  │  (rephrase)         │
+                                  └──────────┬──────────┘
+                                             │ sentence
+                                             ▼
+                                  ┌─────────────────────┐
+                                  │  CLAP text encoder  │
+                                  │  (512-dim vector)   │
+                                  └──────────┬──────────┘
+                                             │
+                                             ▼
+                                  ┌─────────────────────┐
+                                  │  ChromaDB query     │
+                                  │  text + audio avg   │
+                                  └──────────┬──────────┘
+                                             │ best song id
+                                             ▼
+                                       to frontend
 ```
