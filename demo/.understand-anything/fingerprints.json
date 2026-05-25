@@ -1,0 +1,799 @@
+{
+  "version": "1.0.0",
+  "gitCommitHash": "c96e5a006e68338b2956f92d2998c9d90298c7a6",
+  "generatedAt": "2026-05-25T04:28:45.411Z",
+  "files": {
+    "api/interface/interface.py": {
+      "filePath": "api/interface/interface.py",
+      "contentHash": "b09a5cdb5c445719c4337f73452b00c48dd004515b359a77fa94daa653d5ea22",
+      "functions": [],
+      "classes": [
+        {
+          "name": "FacialAnalyst",
+          "methods": [],
+          "properties": [
+            "frames",
+            "duration"
+          ],
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "imports": [
+        {
+          "source": "pydantic",
+          "specifiers": [
+            "BaseModel"
+          ]
+        }
+      ],
+      "exports": [
+        "FacialAnalyst"
+      ],
+      "totalLines": 5,
+      "hasStructuralAnalysis": true
+    },
+    "docker-compose.yml": {
+      "filePath": "docker-compose.yml",
+      "contentHash": "3d1d92bc290019e413e37e006774a95ec51dc00a13c3ab91bbc15eeb4f0f1ca6",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 16,
+      "hasStructuralAnalysis": true
+    },
+    "Dockerfile": {
+      "filePath": "Dockerfile",
+      "contentHash": "49403589d7ca7e9e6981bb12eb5398c3048751dd392c7bff3016047ce17b6a10",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 24,
+      "hasStructuralAnalysis": true
+    },
+    "main.py": {
+      "filePath": "main.py",
+      "contentHash": "9c457e05557d9dc62483fe687dd657cb47869417fb8641856e683f3df06a9f95",
+      "functions": [
+        {
+          "name": "lifespan",
+          "params": [
+            "app"
+          ],
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "analyze",
+          "params": [
+            "req",
+            "payload"
+          ],
+          "exported": true,
+          "lineCount": 13
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "os",
+          "specifiers": [
+            "os"
+          ]
+        },
+        {
+          "source": "fastapi",
+          "specifiers": [
+            "FastAPI",
+            "Request"
+          ]
+        },
+        {
+          "source": "fastapi.middleware.cors",
+          "specifiers": [
+            "CORSMiddleware"
+          ]
+        },
+        {
+          "source": "fastapi.staticfiles",
+          "specifiers": [
+            "StaticFiles"
+          ]
+        },
+        {
+          "source": "interface.interface",
+          "specifiers": [
+            "FacialAnalyst"
+          ]
+        },
+        {
+          "source": "contextlib",
+          "specifiers": [
+            "asynccontextmanager"
+          ]
+        },
+        {
+          "source": "model.trans_model",
+          "specifiers": [
+            "ClapEncoder",
+            "Facial"
+          ]
+        },
+        {
+          "source": "src.frame_processor",
+          "specifiers": [
+            "analyze_frames"
+          ]
+        },
+        {
+          "source": "src.emotions",
+          "specifiers": [
+            "top_emotions",
+            "clap_open_song"
+          ]
+        },
+        {
+          "source": "chromadb",
+          "specifiers": [
+            "chromadb"
+          ]
+        }
+      ],
+      "exports": [
+        "lifespan",
+        "analyze"
+      ],
+      "totalLines": 61,
+      "hasStructuralAnalysis": true
+    },
+    "model/trans_model.py": {
+      "filePath": "model/trans_model.py",
+      "contentHash": "4df61c9da0e32e3914cd3f536f7d42a6c73c839776f80e2f75a56141486ff5a3",
+      "functions": [],
+      "classes": [
+        {
+          "name": "ClapEncoder",
+          "methods": [
+            "__init__",
+            "process_text",
+            "process_audio",
+            "encode_text",
+            "encode_audio"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 42
+        },
+        {
+          "name": "Facial",
+          "methods": [
+            "__init__"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 7
+        }
+      ],
+      "imports": [
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        },
+        {
+          "source": "transformers",
+          "specifiers": [
+            "ClapModel",
+            "ClapProcessor",
+            "pipeline"
+          ]
+        },
+        {
+          "source": "facenet_pytorch",
+          "specifiers": [
+            "MTCNN"
+          ]
+        }
+      ],
+      "exports": [
+        "ClapEncoder",
+        "Facial"
+      ],
+      "totalLines": 56,
+      "hasStructuralAnalysis": true
+    },
+    "pyrightconfig.json": {
+      "filePath": "pyrightconfig.json",
+      "contentHash": "5c0e2c89da8a2a6a394ff28ae8d270268da4225cd75804cc12113bbfb71050c5",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 4,
+      "hasStructuralAnalysis": true
+    },
+    "README.md": {
+      "filePath": "README.md",
+      "contentHash": "5e4f1eed27bdd01a2ed0683f1f170a9ee598e9b62f2a9631d7fe6d29752189bd",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 67,
+      "hasStructuralAnalysis": true
+    },
+    "requirements.txt": {
+      "filePath": "requirements.txt",
+      "contentHash": "75f2f8be5daadf0c30abe20104225f5dbf91a2c881778d55500fb1e1dc909e52",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 16,
+      "hasStructuralAnalysis": false
+    },
+    "src/cam.py": {
+      "filePath": "src/cam.py",
+      "contentHash": "58e8e47e84f73bacf38508981060b29b79bfafef5528e5bda48b29522490d9cb",
+      "functions": [
+        {
+          "name": "run_emotion_session",
+          "params": [
+            "duration"
+          ],
+          "exported": true,
+          "lineCount": 101
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "cv2",
+          "specifiers": [
+            "cv2"
+          ]
+        },
+        {
+          "source": "time",
+          "specifiers": [
+            "time"
+          ]
+        },
+        {
+          "source": "facenet_pytorch",
+          "specifiers": [
+            "MTCNN"
+          ]
+        },
+        {
+          "source": "transformers",
+          "specifiers": [
+            "pipeline"
+          ]
+        },
+        {
+          "source": "PIL",
+          "specifiers": [
+            "Image"
+          ]
+        }
+      ],
+      "exports": [
+        "run_emotion_session"
+      ],
+      "totalLines": 122,
+      "hasStructuralAnalysis": true
+    },
+    "src/embed.py": {
+      "filePath": "src/embed.py",
+      "contentHash": "df50663de62e6b3ab482d00c553d816e1733da017c573d37e5d78001a3520607",
+      "functions": [
+        {
+          "name": "embed_song",
+          "params": [
+            "sample"
+          ],
+          "exported": true,
+          "lineCount": 9
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "os",
+          "specifiers": [
+            "os"
+          ]
+        },
+        {
+          "source": "sentence_transformers",
+          "specifiers": [
+            "SentenceTransformer"
+          ]
+        },
+        {
+          "source": "datasets",
+          "specifiers": [
+            "load_dataset"
+          ]
+        },
+        {
+          "source": "chromadb",
+          "specifiers": [
+            "chromadb"
+          ]
+        }
+      ],
+      "exports": [
+        "embed_song"
+      ],
+      "totalLines": 34,
+      "hasStructuralAnalysis": true
+    },
+    "src/emotions.py": {
+      "filePath": "src/emotions.py",
+      "contentHash": "03666bfd5314083899ab9dbeea3b92fa5e899ee96fee31daac6afba5b3766e2c",
+      "functions": [
+        {
+          "name": "rephrase_emotions",
+          "params": [
+            "emotions"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "open_song",
+          "params": [
+            "song",
+            "artist"
+          ],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "play_song",
+          "params": [
+            "title",
+            "artist"
+          ],
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "clap_encode_text",
+          "params": [
+            "model",
+            "emotion_words"
+          ],
+          "returnType": "np.ndarray",
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "base_id",
+          "params": [
+            "entry_id"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "clap_query",
+          "params": [
+            "encoded_emo"
+          ],
+          "exported": true,
+          "lineCount": 46
+        },
+        {
+          "name": "clap_open_song",
+          "params": [
+            "model",
+            "emotion_arr"
+          ],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "top_emotions",
+          "params": [
+            "session_results",
+            "top_n"
+          ],
+          "returnType": "list[str]",
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "os",
+          "specifiers": [
+            "os"
+          ]
+        },
+        {
+          "source": "trans_model",
+          "specifiers": [
+            "ClapEncoder"
+          ]
+        },
+        {
+          "source": "requests",
+          "specifiers": [
+            "requests"
+          ]
+        },
+        {
+          "source": "webbrowser",
+          "specifiers": [
+            "webbrowser"
+          ]
+        },
+        {
+          "source": "subprocess",
+          "specifiers": [
+            "subprocess"
+          ]
+        },
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        },
+        {
+          "source": "numpy",
+          "specifiers": [
+            "np"
+          ]
+        },
+        {
+          "source": "chromadb",
+          "specifiers": [
+            "chromadb"
+          ]
+        }
+      ],
+      "exports": [
+        "rephrase_emotions",
+        "open_song",
+        "play_song",
+        "clap_encode_text",
+        "base_id",
+        "clap_query",
+        "clap_open_song",
+        "top_emotions"
+      ],
+      "totalLines": 142,
+      "hasStructuralAnalysis": true
+    },
+    "src/frame_processor.py": {
+      "filePath": "src/frame_processor.py",
+      "contentHash": "f4b93ec7344fe2499b0df4cf390afba7da0e14550c6d03d153450a2bc539814a",
+      "functions": [
+        {
+          "name": "map_to_complex",
+          "params": [
+            "base_probs"
+          ],
+          "returnType": "dict",
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "decode_frame",
+          "params": [
+            "base64_string"
+          ],
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "analyze_frames",
+          "params": [
+            "model",
+            "frames"
+          ],
+          "returnType": "list[dict]",
+          "exported": true,
+          "lineCount": 55
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "numpy",
+          "specifiers": [
+            "np"
+          ]
+        },
+        {
+          "source": "PIL",
+          "specifiers": [
+            "Image"
+          ]
+        },
+        {
+          "source": "io",
+          "specifiers": [
+            "io"
+          ]
+        },
+        {
+          "source": "base64",
+          "specifiers": [
+            "base64"
+          ]
+        }
+      ],
+      "exports": [
+        "map_to_complex",
+        "decode_frame",
+        "analyze_frames"
+      ],
+      "totalLines": 112,
+      "hasStructuralAnalysis": true
+    },
+    "src/run.py": {
+      "filePath": "src/run.py",
+      "contentHash": "48f6e41121a891771cd03f08894a35cf9e5eab5ab5c5f20dc68771bb660c74f2",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "cam",
+          "specifiers": [
+            "run_emotion_session"
+          ]
+        },
+        {
+          "source": "emotions",
+          "specifiers": [
+            "clap_open_song",
+            "top_emotions"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 14,
+      "hasStructuralAnalysis": true
+    },
+    "tools/clap_encode.py": {
+      "filePath": "tools/clap_encode.py",
+      "contentHash": "7337a86a196611cb038afa7930b7bd18bf94b2cb25b40fde167856e06bbe3112",
+      "functions": [
+        {
+          "name": "encode_clap",
+          "params": [
+            "model",
+            "lyrics",
+            "audio_path"
+          ],
+          "returnType": "tuple[np.ndarray, np.ndarray]",
+          "exported": true,
+          "lineCount": 22
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "numpy",
+          "specifiers": [
+            "np"
+          ]
+        },
+        {
+          "source": "librosa",
+          "specifiers": [
+            "librosa"
+          ]
+        }
+      ],
+      "exports": [
+        "encode_clap"
+      ],
+      "totalLines": 27,
+      "hasStructuralAnalysis": true
+    },
+    "tools/create_db.py": {
+      "filePath": "tools/create_db.py",
+      "contentHash": "3586e77824b0bace70e299345d5f4d8e2f64b568b3bb9215eb6dc1a0a55345c2",
+      "functions": [
+        {
+          "name": "safe_id",
+          "params": [
+            "title",
+            "artist"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "add_song",
+          "params": [
+            "sample"
+          ],
+          "exported": true,
+          "lineCount": 26
+        },
+        {
+          "name": "main",
+          "params": [],
+          "exported": true,
+          "lineCount": 10
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "os",
+          "specifiers": [
+            "os"
+          ]
+        },
+        {
+          "source": "re",
+          "specifiers": [
+            "re"
+          ]
+        },
+        {
+          "source": "chromadb",
+          "specifiers": [
+            "chromadb"
+          ]
+        },
+        {
+          "source": "datasets",
+          "specifiers": [
+            "load_dataset"
+          ]
+        },
+        {
+          "source": "clap_encode",
+          "specifiers": [
+            "encode_clap"
+          ]
+        },
+        {
+          "source": "trans_model",
+          "specifiers": [
+            "ClapEncoder"
+          ]
+        }
+      ],
+      "exports": [
+        "safe_id",
+        "add_song",
+        "main"
+      ],
+      "totalLines": 76,
+      "hasStructuralAnalysis": true
+    },
+    "tools/scrape.py": {
+      "filePath": "tools/scrape.py",
+      "contentHash": "a5e825f3f82122560cd257bde72cf2be107b0605200a86a5fd81f760f83f193b",
+      "functions": [
+        {
+          "name": "safe_id",
+          "params": [
+            "title",
+            "artist"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "already_downloaded",
+          "params": [
+            "song_id"
+          ],
+          "returnType": "bool",
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "download_audio",
+          "params": [
+            "song_id",
+            "title",
+            "artist"
+          ],
+          "returnType": "bool",
+          "exported": true,
+          "lineCount": 17
+        },
+        {
+          "name": "iter_songs",
+          "params": [
+            "collection"
+          ],
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "main",
+          "params": [],
+          "exported": true,
+          "lineCount": 44
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "argparse",
+          "specifiers": [
+            "argparse"
+          ]
+        },
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "os",
+          "specifiers": [
+            "os"
+          ]
+        },
+        {
+          "source": "re",
+          "specifiers": [
+            "re"
+          ]
+        },
+        {
+          "source": "subprocess",
+          "specifiers": [
+            "subprocess"
+          ]
+        },
+        {
+          "source": "chromadb",
+          "specifiers": [
+            "chromadb"
+          ]
+        }
+      ],
+      "exports": [
+        "safe_id",
+        "already_downloaded",
+        "download_audio",
+        "iter_songs",
+        "main"
+      ],
+      "totalLines": 121,
+      "hasStructuralAnalysis": true
+    }
+  }
+}

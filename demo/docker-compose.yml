@@ -3,6 +3,8 @@ services:
     build: . # look at dockerfile in the current directory
     ports:
       - "8000:8000" # map local port 8000 to container port 8000
+    volumes:
+      - ~/.cache/huggingface:/root/.cache/huggingface # reuse local HF model cache instead of re-downloading
     depends_on:
       - ollama # start this container first then app container
 
@@ -11,4 +13,4 @@ services:
     ports:
       - "11434:11434"
     volumes:
-      - ollama_data:/root/.ollama
+      - ~/.ollama:/root/.ollama # point the volume to my local device

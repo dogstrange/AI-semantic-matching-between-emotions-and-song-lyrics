@@ -1,0 +1,1280 @@
+{
+  "version": "1.0.0",
+  "project": {
+    "name": "Emotion-Driven Music Recommendation System",
+    "languages": [
+      "python",
+      "dockerfile",
+      "yaml",
+      "markdown",
+      "json"
+    ],
+    "frameworks": [
+      "FastAPI",
+      "PyTorch",
+      "Transformers",
+      "ChromaDB"
+    ],
+    "description": "A real-time app that detects facial emotions from a webcam and recommends a matching song using the CLAP audio-text model and a ChromaDB vector store, served via FastAPI with an Ollama LLM for emotion rephrasing.",
+    "analyzedAt": "2026-05-25T04:27:11.536Z",
+    "gitCommitHash": "c96e5a006e68338b2956f92d2998c9d90298c7a6"
+  },
+  "nodes": [
+    {
+      "id": "file:main.py",
+      "type": "file",
+      "name": "main.py",
+      "summary": "FastAPI application entry point. Loads the CLAP encoder, facial models, and ChromaDB collection once at startup via an async lifespan, exposes POST /face to run the live emotion-to-song pipeline, and mounts the static frontend.",
+      "tags": [
+        "fastapi",
+        "entry-point",
+        "web-server",
+        "lifespan",
+        "python"
+      ],
+      "filePath": "main.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:api/interface/interface.py",
+      "type": "file",
+      "name": "interface.py",
+      "summary": "Pydantic request schema for the /face endpoint. Defines FacialAnalyst with the base64 webcam frames and session duration sent by the browser.",
+      "tags": [
+        "pydantic",
+        "schema",
+        "request-model",
+        "python"
+      ],
+      "filePath": "api/interface/interface.py",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/frame_processor.py",
+      "type": "file",
+      "name": "frame_processor.py",
+      "summary": "Server-side facial emotion analysis. Decodes base64 frames, runs face detection and the emotion classifier per frame, and blends the 7 base emotions into a richer complex-emotion vocabulary averaged across the session.",
+      "tags": [
+        "emotion-detection",
+        "image-processing",
+        "numpy",
+        "python"
+      ],
+      "filePath": "src/frame_processor.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/emotions.py",
+      "type": "file",
+      "name": "emotions.py",
+      "summary": "Recommendation core. Ranks session emotions, rephrases them into a sentence via a local Mistral/Ollama LLM, encodes that text with CLAP, and queries the ChromaDB collection to pick the closest song across text and audio modalities.",
+      "tags": [
+        "recommendation",
+        "clap",
+        "chromadb",
+        "ollama",
+        "python"
+      ],
+      "filePath": "src/emotions.py",
+      "complexity": "complex"
+    },
+    {
+      "id": "file:src/cam.py",
+      "type": "file",
+      "name": "cam.py",
+      "summary": "Standalone webcam emotion session (pre-web CLI path). Captures frames from the local camera for a fixed duration, detects faces, and accumulates averaged emotion scores.",
+      "tags": [
+        "webcam",
+        "opencv",
+        "emotion-detection",
+        "cli",
+        "python"
+      ],
+      "filePath": "src/cam.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/run.py",
+      "type": "file",
+      "name": "run.py",
+      "summary": "CLI entry point for the original local pipeline: runs a webcam emotion session, ranks the top emotions, and opens the recommended song.",
+      "tags": [
+        "cli",
+        "entry-point",
+        "orchestration",
+        "python"
+      ],
+      "filePath": "src/run.py",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/embed.py",
+      "type": "file",
+      "name": "embed.py",
+      "summary": "Legacy sentence-transformer embedding pipeline. Loads the Spotify Million Song dataset and stores lyric embeddings in the \"songs\" ChromaDB collection — superseded by the CLAP pipeline.",
+      "tags": [
+        "legacy",
+        "sentence-transformers",
+        "chromadb",
+        "embeddings",
+        "python"
+      ],
+      "filePath": "src/embed.py",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:model/trans_model.py",
+      "type": "file",
+      "name": "trans_model.py",
+      "summary": "Model wrappers. ClapEncoder loads laion/larger_clap_music and projects text and audio into a shared embedding space; Facial bundles the emotion classifier and MTCNN face detector.",
+      "tags": [
+        "clap",
+        "transformers",
+        "model-wrapper",
+        "facenet",
+        "python"
+      ],
+      "filePath": "model/trans_model.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:tools/clap_encode.py",
+      "type": "file",
+      "name": "clap_encode.py",
+      "summary": "Encodes a single (lyrics, audio) pair into normalized CLAP text and audio vectors, used when building the song database.",
+      "tags": [
+        "clap",
+        "librosa",
+        "encoding",
+        "python"
+      ],
+      "filePath": "tools/clap_encode.py",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tools/create_db.py",
+      "type": "file",
+      "name": "create_db.py",
+      "summary": "Builds the clap-song-collection in ChromaDB: matches downloaded audio against the Spotify dataset, encodes each song with CLAP, and stores paired text/audio embeddings.",
+      "tags": [
+        "data-pipeline",
+        "chromadb",
+        "clap",
+        "ingestion",
+        "python"
+      ],
+      "filePath": "tools/create_db.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:tools/scrape.py",
+      "type": "file",
+      "name": "scrape.py",
+      "summary": "Downloads audio for every song in the \"songs\" collection via yt-dlp and writes per-song metadata JSON for later YouTube lookup.",
+      "tags": [
+        "data-pipeline",
+        "yt-dlp",
+        "scraper",
+        "cli",
+        "python"
+      ],
+      "filePath": "tools/scrape.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "service:Dockerfile",
+      "type": "service",
+      "name": "Dockerfile",
+      "summary": "Container image for the app: installs system audio deps and Python requirements, copies the API/src/model/frontend and prebuilt CLAP vector DB, and serves uvicorn main:app on port 8000.",
+      "tags": [
+        "docker",
+        "container",
+        "uvicorn",
+        "deployment"
+      ],
+      "filePath": "Dockerfile",
+      "complexity": "simple"
+    },
+    {
+      "id": "service:docker-compose.yml",
+      "type": "service",
+      "name": "docker-compose.yml",
+      "summary": "Two-service orchestration: the FastAPI app (built from the Dockerfile, port 8000) and an Ollama LLM container (port 11434) that the app depends on for emotion rephrasing.",
+      "tags": [
+        "docker-compose",
+        "orchestration",
+        "ollama",
+        "deployment"
+      ],
+      "filePath": "docker-compose.yml",
+      "complexity": "simple"
+    },
+    {
+      "id": "config:pyrightconfig.json",
+      "type": "config",
+      "name": "pyrightconfig.json",
+      "summary": "Pyright type-checker config adding src, model, and api to the import resolution paths so the flat-package imports resolve.",
+      "tags": [
+        "pyright",
+        "type-checking",
+        "config"
+      ],
+      "filePath": "pyrightconfig.json",
+      "complexity": "simple"
+    },
+    {
+      "id": "config:requirements.txt",
+      "type": "config",
+      "name": "requirements.txt",
+      "summary": "Pinned Python dependency manifest: torch, transformers, chromadb, fastapi/uvicorn, facenet-pytorch, librosa, and supporting libraries.",
+      "tags": [
+        "dependencies",
+        "manifest",
+        "python"
+      ],
+      "filePath": "requirements.txt",
+      "complexity": "simple"
+    },
+    {
+      "id": "document:README.md",
+      "type": "document",
+      "name": "README.md",
+      "summary": "Project documentation: explains the webcam-to-song flow, tech stack (CLAP, ChromaDB, Ollama, MTCNN), project structure, current state, and the production TODO for the FastAPI + web deployment.",
+      "tags": [
+        "documentation",
+        "overview",
+        "readme"
+      ],
+      "filePath": "README.md",
+      "complexity": "simple"
+    },
+    {
+      "id": "table:data/clap_db:clap-song-collection",
+      "type": "table",
+      "name": "clap-song-collection",
+      "summary": "ChromaDB collection (cosine) of ~400 entries: each song stored as separate CLAP text and audio embeddings. Queried at runtime to find the song closest to the encoded emotion sentence.",
+      "tags": [
+        "chromadb",
+        "vector-store",
+        "clap",
+        "embeddings"
+      ],
+      "filePath": "data/clap_db",
+      "complexity": "simple"
+    },
+    {
+      "id": "table:chroma_db:songs",
+      "type": "table",
+      "name": "songs",
+      "summary": "ChromaDB \"songs\" collection of lyric embeddings built by the legacy embed pipeline; read by the scraper to know which songs to download audio for.",
+      "tags": [
+        "chromadb",
+        "vector-store",
+        "embeddings",
+        "legacy"
+      ],
+      "filePath": "chroma_db",
+      "complexity": "simple"
+    },
+    {
+      "id": "endpoint:main.py:post-face",
+      "type": "endpoint",
+      "name": "POST /face",
+      "summary": "HTTP endpoint that accepts captured webcam frames, runs facial emotion analysis, ranks the top emotions, and returns the recommended song plus the detected emotions.",
+      "tags": [
+        "fastapi",
+        "endpoint",
+        "rest",
+        "recommendation"
+      ],
+      "filePath": "main.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:api/interface/interface.py:FacialAnalyst",
+      "type": "class",
+      "name": "FacialAnalyst",
+      "summary": "Pydantic BaseModel describing the /face request body: a list of base64 frame strings and the session duration.",
+      "tags": [
+        "pydantic",
+        "schema"
+      ],
+      "filePath": "api/interface/interface.py",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:main.py:lifespan",
+      "type": "function",
+      "name": "lifespan",
+      "summary": "Async startup/shutdown context that loads the ClapEncoder, Facial models, and the clap-song-collection into app state exactly once.",
+      "tags": [
+        "fastapi",
+        "lifespan",
+        "startup"
+      ],
+      "filePath": "main.py",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:main.py:analyze",
+      "type": "function",
+      "name": "analyze",
+      "summary": "Handler for POST /face: runs analyze_frames on the payload, ranks the top emotions, and resolves the best matching song via clap_open_song.",
+      "tags": [
+        "handler",
+        "pipeline"
+      ],
+      "filePath": "main.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:model/trans_model.py:ClapEncoder",
+      "type": "class",
+      "name": "ClapEncoder",
+      "summary": "Loads the laion/larger_clap_music model and processor and exposes text/audio preprocessing and projection into the shared CLAP embedding space.",
+      "tags": [
+        "clap",
+        "encoder",
+        "transformers"
+      ],
+      "filePath": "model/trans_model.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:model/trans_model.py:Facial",
+      "type": "class",
+      "name": "Facial",
+      "summary": "Bundles the HuggingFace image-classification emotion pipeline and the MTCNN face detector used during frame analysis.",
+      "tags": [
+        "emotion-detection",
+        "mtcnn",
+        "transformers"
+      ],
+      "filePath": "model/trans_model.py",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:model/trans_model.py:process_text",
+      "type": "function",
+      "name": "ClapEncoder.process_text",
+      "summary": "Tokenizes lyric/emotion text into padded, truncated CLAP processor tensors on the active device.",
+      "tags": [
+        "clap",
+        "preprocessing"
+      ],
+      "filePath": "model/trans_model.py",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:model/trans_model.py:process_audio",
+      "type": "function",
+      "name": "ClapEncoder.process_audio",
+      "summary": "Converts a raw 48kHz audio array into CLAP processor input tensors.",
+      "tags": [
+        "clap",
+        "preprocessing",
+        "audio"
+      ],
+      "filePath": "model/trans_model.py",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:model/trans_model.py:encode_text",
+      "type": "function",
+      "name": "ClapEncoder.encode_text",
+      "summary": "Projects processed text through the CLAP text model and text projection into the shared embedding space.",
+      "tags": [
+        "clap",
+        "embeddings"
+      ],
+      "filePath": "model/trans_model.py",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:model/trans_model.py:encode_audio",
+      "type": "function",
+      "name": "ClapEncoder.encode_audio",
+      "summary": "Projects processed audio through the CLAP audio model and audio projection into the shared embedding space.",
+      "tags": [
+        "clap",
+        "embeddings",
+        "audio"
+      ],
+      "filePath": "model/trans_model.py",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/frame_processor.py:map_to_complex",
+      "type": "function",
+      "name": "map_to_complex",
+      "summary": "Maps a 7-emotion probability dict into a richer complex-emotion score dict using weighted blends.",
+      "tags": [
+        "emotion-mapping"
+      ],
+      "filePath": "src/frame_processor.py",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/frame_processor.py:decode_frame",
+      "type": "function",
+      "name": "decode_frame",
+      "summary": "Decodes a base64 data-URL frame string into a PIL image.",
+      "tags": [
+        "base64",
+        "image"
+      ],
+      "filePath": "src/frame_processor.py",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/frame_processor.py:analyze_frames",
+      "type": "function",
+      "name": "analyze_frames",
+      "summary": "Runs face detection and emotion classification over a batch of frames and returns averaged complex-emotion scores.",
+      "tags": [
+        "emotion-detection",
+        "batch"
+      ],
+      "filePath": "src/frame_processor.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/emotions.py:rephrase_emotions",
+      "type": "function",
+      "name": "rephrase_emotions",
+      "summary": "Sends the ranked emotions to a local Mistral model via the Ollama HTTP API and returns a one-sentence emotional description.",
+      "tags": [
+        "ollama",
+        "llm",
+        "http"
+      ],
+      "filePath": "src/emotions.py",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/emotions.py:clap_encode_text",
+      "type": "function",
+      "name": "clap_encode_text",
+      "summary": "Rephrases emotions into a sentence, encodes it with CLAP, and L2-normalizes the resulting text vector.",
+      "tags": [
+        "clap",
+        "embeddings"
+      ],
+      "filePath": "src/emotions.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/emotions.py:clap_query",
+      "type": "function",
+      "name": "clap_query",
+      "summary": "Queries the clap-song-collection for the nearest text and audio embeddings, combines the per-song distances, and returns the best song id.",
+      "tags": [
+        "chromadb",
+        "vector-search",
+        "ranking"
+      ],
+      "filePath": "src/emotions.py",
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/emotions.py:clap_open_song",
+      "type": "function",
+      "name": "clap_open_song",
+      "summary": "Top-level recommendation step: encodes the emotion words and queries the vector store for the best matching song.",
+      "tags": [
+        "recommendation",
+        "orchestration"
+      ],
+      "filePath": "src/emotions.py",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/emotions.py:top_emotions",
+      "type": "function",
+      "name": "top_emotions",
+      "summary": "Sorts session emotion scores descending and returns the top-N emotion labels.",
+      "tags": [
+        "ranking"
+      ],
+      "filePath": "src/emotions.py",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/emotions.py:base_id",
+      "type": "function",
+      "name": "base_id",
+      "summary": "Strips the _text/_audio suffix from an entry id to recover the canonical song id.",
+      "tags": [
+        "utility"
+      ],
+      "filePath": "src/emotions.py",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/cam.py:run_emotion_session",
+      "type": "function",
+      "name": "run_emotion_session",
+      "summary": "Captures webcam frames for the given duration, detects faces, accumulates emotion scores, and returns averaged per-emotion results.",
+      "tags": [
+        "webcam",
+        "opencv",
+        "emotion-detection"
+      ],
+      "filePath": "src/cam.py",
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/embed.py:embed_song",
+      "type": "function",
+      "name": "embed_song",
+      "summary": "Encodes a song's lyrics with a sentence-transformer and adds the embedding to the legacy \"songs\" collection.",
+      "tags": [
+        "embeddings",
+        "chromadb",
+        "legacy"
+      ],
+      "filePath": "src/embed.py",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tools/clap_encode.py:encode_clap",
+      "type": "function",
+      "name": "encode_clap",
+      "summary": "Loads an audio file with librosa and returns normalized CLAP text and audio vectors for a (lyrics, audio) pair.",
+      "tags": [
+        "clap",
+        "librosa",
+        "encoding"
+      ],
+      "filePath": "tools/clap_encode.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:tools/create_db.py:safe_id",
+      "type": "function",
+      "name": "safe_id",
+      "summary": "Normalizes \"artist_title\" into a filesystem/id-safe slug matching the scraper's convention.",
+      "tags": [
+        "utility",
+        "slug"
+      ],
+      "filePath": "tools/create_db.py",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tools/create_db.py:add_song",
+      "type": "function",
+      "name": "add_song",
+      "summary": "For a dataset row with downloaded audio, encodes the (lyrics, audio) pair and adds paired text/audio embeddings to clap-song-collection.",
+      "tags": [
+        "ingestion",
+        "clap",
+        "chromadb"
+      ],
+      "filePath": "tools/create_db.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:tools/create_db.py:main",
+      "type": "function",
+      "name": "create_db.main",
+      "summary": "Filters the Spotify dataset to songs with downloaded audio and maps add_song across them to populate the CLAP vector store.",
+      "tags": [
+        "data-pipeline",
+        "ingestion"
+      ],
+      "filePath": "tools/create_db.py",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tools/scrape.py:safe_id",
+      "type": "function",
+      "name": "safe_id",
+      "summary": "Normalizes \"artist_title\" into an id-safe slug used for audio filenames and metadata.",
+      "tags": [
+        "utility",
+        "slug"
+      ],
+      "filePath": "tools/scrape.py",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tools/scrape.py:download_audio",
+      "type": "function",
+      "name": "download_audio",
+      "summary": "Downloads the best YouTube audio match for a song as mp3 via yt-dlp.",
+      "tags": [
+        "yt-dlp",
+        "download",
+        "audio"
+      ],
+      "filePath": "tools/scrape.py",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tools/scrape.py:iter_songs",
+      "type": "function",
+      "name": "iter_songs",
+      "summary": "Pages through the \"songs\" ChromaDB collection yielding (title, artist) without loading everything at once.",
+      "tags": [
+        "chromadb",
+        "pagination",
+        "generator"
+      ],
+      "filePath": "tools/scrape.py",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tools/scrape.py:main",
+      "type": "function",
+      "name": "scrape.main",
+      "summary": "Iterates the songs collection, downloads each track's audio (skipping existing), and writes per-song metadata JSON.",
+      "tags": [
+        "data-pipeline",
+        "cli"
+      ],
+      "filePath": "tools/scrape.py",
+      "complexity": "moderate"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:main.py",
+      "target": "function:main.py:lifespan",
+      "type": "contains",
+      "weight": 1
+    },
+    {
+      "source": "file:main.py",
+      "target": "function:main.py:analyze",
+      "type": "contains",
+      "weight": 1
+    },
+    {
+      "source": "file:main.py",
+      "target": "endpoint:main.py:post-face",
+      "type": "contains",
+      "weight": 1
+    },
+    {
+      "source": "file:api/interface/interface.py",
+      "target": "class:api/interface/interface.py:FacialAnalyst",
+      "type": "contains",
+      "weight": 1
+    },
+    {
+      "source": "file:model/trans_model.py",
+      "target": "class:model/trans_model.py:ClapEncoder",
+      "type": "contains",
+      "weight": 1
+    },
+    {
+      "source": "file:model/trans_model.py",
+      "target": "class:model/trans_model.py:Facial",
+      "type": "contains",
+      "weight": 1
+    },
+    {
+      "source": "class:model/trans_model.py:ClapEncoder",
+      "target": "function:model/trans_model.py:process_text",
+      "type": "contains",
+      "weight": 1
+    },
+    {
+      "source": "class:model/trans_model.py:ClapEncoder",
+      "target": "function:model/trans_model.py:process_audio",
+      "type": "contains",
+      "weight": 1
+    },
+    {
+      "source": "class:model/trans_model.py:ClapEncoder",
+      "target": "function:model/trans_model.py:encode_text",
+      "type": "contains",
+      "weight": 1
+    },
+    {
+      "source": "class:model/trans_model.py:ClapEncoder",
+      "target": "function:model/trans_model.py:encode_audio",
+      "type": "contains",
+      "weight": 1
+    },
+    {
+      "source": "file:src/frame_processor.py",
+      "target": "function:src/frame_processor.py:map_to_complex",
+      "type": "contains",
+      "weight": 1
+    },
+    {
+      "source": "file:src/frame_processor.py",
+      "target": "function:src/frame_processor.py:decode_frame",
+      "type": "contains",
+      "weight": 1
+    },
+    {
+      "source": "file:src/frame_processor.py",
+      "target": "function:src/frame_processor.py:analyze_frames",
+      "type": "contains",
+      "weight": 1
+    },
+    {
+      "source": "file:src/emotions.py",
+      "target": "function:src/emotions.py:rephrase_emotions",
+      "type": "contains",
+      "weight": 1
+    },
+    {
+      "source": "file:src/emotions.py",
+      "target": "function:src/emotions.py:clap_encode_text",
+      "type": "contains",
+      "weight": 1
+    },
+    {
+      "source": "file:src/emotions.py",
+      "target": "function:src/emotions.py:clap_query",
+      "type": "contains",
+      "weight": 1
+    },
+    {
+      "source": "file:src/emotions.py",
+      "target": "function:src/emotions.py:clap_open_song",
+      "type": "contains",
+      "weight": 1
+    },
+    {
+      "source": "file:src/emotions.py",
+      "target": "function:src/emotions.py:top_emotions",
+      "type": "contains",
+      "weight": 1
+    },
+    {
+      "source": "file:src/emotions.py",
+      "target": "function:src/emotions.py:base_id",
+      "type": "contains",
+      "weight": 1
+    },
+    {
+      "source": "file:src/cam.py",
+      "target": "function:src/cam.py:run_emotion_session",
+      "type": "contains",
+      "weight": 1
+    },
+    {
+      "source": "file:src/embed.py",
+      "target": "function:src/embed.py:embed_song",
+      "type": "contains",
+      "weight": 1
+    },
+    {
+      "source": "file:tools/clap_encode.py",
+      "target": "function:tools/clap_encode.py:encode_clap",
+      "type": "contains",
+      "weight": 1
+    },
+    {
+      "source": "file:tools/create_db.py",
+      "target": "function:tools/create_db.py:safe_id",
+      "type": "contains",
+      "weight": 1
+    },
+    {
+      "source": "file:tools/create_db.py",
+      "target": "function:tools/create_db.py:add_song",
+      "type": "contains",
+      "weight": 1
+    },
+    {
+      "source": "file:tools/create_db.py",
+      "target": "function:tools/create_db.py:main",
+      "type": "contains",
+      "weight": 1
+    },
+    {
+      "source": "file:tools/scrape.py",
+      "target": "function:tools/scrape.py:safe_id",
+      "type": "contains",
+      "weight": 1
+    },
+    {
+      "source": "file:tools/scrape.py",
+      "target": "function:tools/scrape.py:download_audio",
+      "type": "contains",
+      "weight": 1
+    },
+    {
+      "source": "file:tools/scrape.py",
+      "target": "function:tools/scrape.py:iter_songs",
+      "type": "contains",
+      "weight": 1
+    },
+    {
+      "source": "file:tools/scrape.py",
+      "target": "function:tools/scrape.py:main",
+      "type": "contains",
+      "weight": 1
+    },
+    {
+      "source": "file:main.py",
+      "target": "file:api/interface/interface.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:main.py",
+      "target": "file:model/trans_model.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:main.py",
+      "target": "file:src/frame_processor.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:main.py",
+      "target": "file:src/emotions.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/run.py",
+      "target": "file:src/cam.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/run.py",
+      "target": "file:src/emotions.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/emotions.py",
+      "target": "file:model/trans_model.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tools/create_db.py",
+      "target": "file:tools/clap_encode.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tools/create_db.py",
+      "target": "file:model/trans_model.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "function:main.py:lifespan",
+      "target": "class:model/trans_model.py:ClapEncoder",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:main.py:lifespan",
+      "target": "class:model/trans_model.py:Facial",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:main.py:analyze",
+      "target": "function:src/frame_processor.py:analyze_frames",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:main.py:analyze",
+      "target": "function:src/emotions.py:top_emotions",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:main.py:analyze",
+      "target": "function:src/emotions.py:clap_open_song",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "endpoint:main.py:post-face",
+      "target": "function:main.py:analyze",
+      "type": "routes",
+      "weight": 0.5
+    },
+    {
+      "source": "function:src/frame_processor.py:analyze_frames",
+      "target": "function:src/frame_processor.py:map_to_complex",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/frame_processor.py:analyze_frames",
+      "target": "function:src/frame_processor.py:decode_frame",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/emotions.py:clap_open_song",
+      "target": "function:src/emotions.py:clap_encode_text",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/emotions.py:clap_open_song",
+      "target": "function:src/emotions.py:clap_query",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/emotions.py:clap_encode_text",
+      "target": "function:src/emotions.py:rephrase_emotions",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/emotions.py:clap_encode_text",
+      "target": "function:model/trans_model.py:process_text",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/emotions.py:clap_encode_text",
+      "target": "function:model/trans_model.py:encode_text",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/emotions.py:clap_query",
+      "target": "function:src/emotions.py:base_id",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:tools/clap_encode.py:encode_clap",
+      "target": "function:model/trans_model.py:process_text",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:tools/clap_encode.py:encode_clap",
+      "target": "function:model/trans_model.py:process_audio",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:tools/clap_encode.py:encode_clap",
+      "target": "function:model/trans_model.py:encode_text",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:tools/clap_encode.py:encode_clap",
+      "target": "function:model/trans_model.py:encode_audio",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:tools/create_db.py:add_song",
+      "target": "function:tools/clap_encode.py:encode_clap",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:tools/create_db.py:add_song",
+      "target": "function:tools/create_db.py:safe_id",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:tools/create_db.py:main",
+      "target": "function:tools/create_db.py:add_song",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:tools/scrape.py:main",
+      "target": "function:tools/scrape.py:download_audio",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:tools/scrape.py:main",
+      "target": "function:tools/scrape.py:iter_songs",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:tools/scrape.py:main",
+      "target": "function:tools/scrape.py:safe_id",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/run.py",
+      "target": "function:src/cam.py:run_emotion_session",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/run.py",
+      "target": "function:src/emotions.py:top_emotions",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/run.py",
+      "target": "function:src/emotions.py:clap_open_song",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:main.py:lifespan",
+      "target": "table:data/clap_db:clap-song-collection",
+      "type": "reads_from",
+      "weight": 0.5
+    },
+    {
+      "source": "function:src/emotions.py:clap_query",
+      "target": "table:data/clap_db:clap-song-collection",
+      "type": "reads_from",
+      "weight": 0.5
+    },
+    {
+      "source": "function:tools/create_db.py:add_song",
+      "target": "table:data/clap_db:clap-song-collection",
+      "type": "writes_to",
+      "weight": 0.5
+    },
+    {
+      "source": "function:src/embed.py:embed_song",
+      "target": "table:chroma_db:songs",
+      "type": "writes_to",
+      "weight": 0.5
+    },
+    {
+      "source": "function:tools/scrape.py:iter_songs",
+      "target": "table:chroma_db:songs",
+      "type": "reads_from",
+      "weight": 0.5
+    },
+    {
+      "source": "service:Dockerfile",
+      "target": "file:main.py",
+      "type": "deploys",
+      "weight": 0.7
+    },
+    {
+      "source": "service:Dockerfile",
+      "target": "config:requirements.txt",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "source": "service:docker-compose.yml",
+      "target": "service:Dockerfile",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "source": "service:docker-compose.yml",
+      "target": "endpoint:main.py:post-face",
+      "type": "serves",
+      "weight": 0.5
+    },
+    {
+      "source": "config:pyrightconfig.json",
+      "target": "file:main.py",
+      "type": "configures",
+      "weight": 0.6
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:main.py",
+      "type": "documents",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:src/emotions.py",
+      "type": "documents",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:model/trans_model.py",
+      "type": "documents",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:tools/scrape.py",
+      "type": "documents",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:tools/create_db.py",
+      "type": "documents",
+      "weight": 0.5
+    }
+  ],
+  "layers": [
+    {
+      "id": "layer:web-api",
+      "name": "Web API",
+      "description": "FastAPI web server: the HTTP entry point, the request schema, and the /face endpoint that drives the live recommendation flow.",
+      "nodeIds": [
+        "file:main.py",
+        "file:api/interface/interface.py",
+        "endpoint:main.py:post-face"
+      ]
+    },
+    {
+      "id": "layer:recommendation-pipeline",
+      "name": "Recommendation Pipeline",
+      "description": "Runtime emotion-to-song logic: per-frame emotion analysis, emotion ranking, CLAP text encoding, and vector querying.",
+      "nodeIds": [
+        "file:src/frame_processor.py",
+        "file:src/emotions.py",
+        "file:src/cam.py",
+        "file:src/run.py"
+      ]
+    },
+    {
+      "id": "layer:ml-models",
+      "name": "ML Models",
+      "description": "Wrapped machine-learning models: the CLAP dual encoder and the facial-emotion / face-detection models.",
+      "nodeIds": [
+        "file:model/trans_model.py"
+      ]
+    },
+    {
+      "id": "layer:data-pipeline",
+      "name": "Data Pipeline",
+      "description": "Offline dataset preparation: scraping audio, encoding (lyrics, audio) pairs, and populating the vector stores.",
+      "nodeIds": [
+        "file:tools/clap_encode.py",
+        "file:tools/create_db.py",
+        "file:tools/scrape.py",
+        "file:src/embed.py"
+      ]
+    },
+    {
+      "id": "layer:vector-stores",
+      "name": "Vector Stores",
+      "description": "ChromaDB collections holding song embeddings — built offline and queried at runtime.",
+      "nodeIds": [
+        "table:data/clap_db:clap-song-collection",
+        "table:chroma_db:songs"
+      ]
+    },
+    {
+      "id": "layer:infrastructure",
+      "name": "Infrastructure",
+      "description": "Container build and multi-service orchestration (the app plus the Ollama LLM).",
+      "nodeIds": [
+        "service:Dockerfile",
+        "service:docker-compose.yml"
+      ]
+    },
+    {
+      "id": "layer:config-and-docs",
+      "name": "Config & Docs",
+      "description": "Project documentation, the dependency manifest, and type-checker configuration.",
+      "nodeIds": [
+        "config:pyrightconfig.json",
+        "config:requirements.txt",
+        "document:README.md"
+      ]
+    }
+  ],
+  "tour": [
+    {
+      "order": 1,
+      "title": "Project Overview",
+      "description": "Start with the README to understand the goal: detect facial emotions from a webcam and recommend a matching song via CLAP and a vector database.",
+      "nodeIds": [
+        "document:README.md"
+      ]
+    },
+    {
+      "order": 2,
+      "title": "Web Server Entry Point",
+      "description": "main.py boots the FastAPI app, loads models once in the lifespan, and exposes POST /face — the seam where the browser hands frames to the pipeline.",
+      "nodeIds": [
+        "file:main.py",
+        "endpoint:main.py:post-face"
+      ]
+    },
+    {
+      "order": 3,
+      "title": "The Request Contract",
+      "description": "FacialAnalyst is the Pydantic schema that types the /face request body: the base64 frames and session duration the frontend sends.",
+      "nodeIds": [
+        "file:api/interface/interface.py"
+      ]
+    },
+    {
+      "order": 4,
+      "title": "Facial Emotion Analysis",
+      "description": "frame_processor decodes each frame, detects faces, classifies emotions, and blends the 7 base emotions into a richer complex-emotion vocabulary.",
+      "nodeIds": [
+        "file:src/frame_processor.py"
+      ]
+    },
+    {
+      "order": 5,
+      "title": "The ML Models",
+      "description": "trans_model wraps the two model families the pipeline depends on: the CLAP dual encoder (text + audio) and the facial emotion classifier with MTCNN.",
+      "nodeIds": [
+        "file:model/trans_model.py"
+      ]
+    },
+    {
+      "order": 6,
+      "title": "Emotion to Song",
+      "description": "emotions.py is the recommendation core: rank emotions, rephrase them with a local LLM, CLAP-encode the sentence, and query the vector store for the closest song.",
+      "nodeIds": [
+        "file:src/emotions.py"
+      ]
+    },
+    {
+      "order": 7,
+      "title": "The Vector Stores",
+      "description": "Two ChromaDB collections back the system: the runtime clap-song-collection (text+audio embeddings) and the legacy \"songs\" lyric collection used during scraping.",
+      "nodeIds": [
+        "table:data/clap_db:clap-song-collection",
+        "table:chroma_db:songs"
+      ]
+    },
+    {
+      "order": 8,
+      "title": "Building the Song Database",
+      "description": "The offline data pipeline: scrape.py downloads audio, create_db.py and clap_encode.py encode each (lyrics, audio) pair and populate clap-song-collection.",
+      "nodeIds": [
+        "file:tools/scrape.py",
+        "file:tools/create_db.py",
+        "file:tools/clap_encode.py"
+      ]
+    },
+    {
+      "order": 9,
+      "title": "The Original CLI Pipeline",
+      "description": "Before the web app, run.py + cam.py drove the same flow locally: a live webcam session feeding the emotion ranking and song lookup.",
+      "nodeIds": [
+        "file:src/run.py",
+        "file:src/cam.py"
+      ]
+    },
+    {
+      "order": 10,
+      "title": "Containerization & Deployment",
+      "description": "The Dockerfile packages the app and prebuilt vector DB behind uvicorn; docker-compose adds the Ollama LLM service the recommender calls for emotion rephrasing.",
+      "nodeIds": [
+        "service:Dockerfile",
+        "service:docker-compose.yml"
+      ]
+    }
+  ]
+}

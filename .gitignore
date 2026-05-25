@@ -6,7 +6,9 @@ lora_results/
 wandb/
 *.pt
 *.safetensors
-demo/data/
+demo/data/*
+!demo/data/clap_db/
+!demo/data/metadata/
 demo/.claude
 pyrightconfig.json
 demo/diagram/
